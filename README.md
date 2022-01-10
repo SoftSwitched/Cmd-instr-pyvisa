@@ -3,7 +3,8 @@
 
 The purpose of this program is to simplify and homogenize the communication between the computer and the
 instruments of the lab. A database containing most of the controllable instruments has been created. 
-The devices are added as objects under the name written on their label : ex : OSCI015 
+The devices are added as objects under the name written on their label : 
+ex : OSCI015 
 
 The functions can then be called by invoking the following form: 
 OSCI015.My_function()
