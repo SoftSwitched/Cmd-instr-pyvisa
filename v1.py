@@ -230,7 +230,7 @@ class Instruments:
            
     def Mult_acq(self):
         if (self.Brand == 'Keysight') and (self.Func == 'Multi'): # Driver  Keysight Multi
-            data = rm.open_resource(self.Adress).query('READ?')  
+            data = float(rm.open_resource(self.Adress).query('READ?') ) 
             return data
         else : 
             print('Bad call to function or function not implemented')
