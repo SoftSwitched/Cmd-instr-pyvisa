@@ -4,7 +4,6 @@ Created on Wed Jan  5 15:39:26 2022
 
 @author: ccolonna
 """
-import os 
 import numpy as np 
 import pyvisa as pv
 import pandas as pd
@@ -24,30 +23,6 @@ Instr_lab = pd.DataFrame({'ID' :['MY59201238','MY57252118',' 454132','MY59003642
                         'Func' :['Scope','Scope','Supply','Multi','Multi','Multi','Supply','Scope','Supply','Multi',
                                  'Multi','Scope','Multi','Multi','Supply','Load','Supply']})
 
-""" Fonctions à implémenter pour l'oscillo V1 : 
-    - Trigger (Channel/ level) + Mode Auto/single  
-    - Scale (Channel/ X / Y )
-    - Mise en forme des datas de sortie 
-    - Acquisition 
-    
- Fonctions à implémenter pour l'alim V1 : 
-    - Volt (Channel/level)
-    - Amp (Channel/Level)
-    - OVP/OCP/MaxPow trigger (Channel/Level) (signal lib)
-    - ON/OFF 
-    
- Fonctions à implémenter pour la charge V1 : 
-    - Volt (Channel/level)
-    - Amp (Channel/Level)
-    - OVP/OCP/MaxPow trigger (Channel/Level) (signal lib)
-    - ON/OFF 
-    
- Fonctions à implémenter pour les multis : 
-    - Type (AMPAC/AMPDC/VOLTAC/VOLTDC)
-    - Calibre 
-    - Set up mes (RMS/Eff, Average)
-    - TRIG (signal lib)
-"""
 
 class Instruments:
     
@@ -59,7 +34,7 @@ class Instruments:
         self.Func  = Instr_lab.Func[ind]
         self.Adress = Adress
         
-####################### SCOPE ###########################################
+####################### SCOPE ###########################################wv 
 
     def Auto_scale (self):
         if (self.Brand == 'Keysight') and (self.Func == 'Scope'): # Driver Scope Keysight
@@ -126,13 +101,72 @@ class Instruments:
             rm.open_resource(self.Adress).write('WAVeform:POINts:MODE NORMal')
             rm.open_resource(self.Adress).write('WAVeform:FORMat BYTE')
             rm.open_resource(self.Adress).write('WAVeform:POINts 1000')
-            data = rm.open_resource(self.Adress).write('DIGitize')
-            return data
+            rm.open_resource(self.Adress).write('DIGitize')
         else : 
             print('Bad call to function or function not implemented')
 
 ####################### SUPPLY ###########################################  
-
+    
+    def Sup_val_set(self, Volt, Amp, Channel=1, Power =10):
+        if (self.Brand == 'TTi') and (self.Func == 'Supply'): # Driver TTi supply
+            rm.open_resource(self.Adress).write('WAVeform:POINts:MODE NORMal')
+            rm.close()
+        elif (self.Brand == 'EA') and (self.Func == 'Supply'): # Driver  EA supply
+            rm.open_resource(self.Adress).write('VOLT '+str(Volt))
+            rm.open_resource(self.Adress).write('CURR '+str(Amp))
+            rm.open_resource(self.Adress).write('POW '+str(Power))
+            rm.close()
+        elif (self.Brand == 'Sorensen') and (self.Func == 'Supply'): #Driver Sorensen supply
+              print('Not YET implemented')
+             
+        else : 
+            print('Bad call to function or function not implemented')
+      
+    def Sup_prot_set(self, OVP, OCP, Channel=1, OPP =10):
+        if (self.Brand == 'TTi') and (self.Func == 'Supply'): # Driver TTi supply
+            rm.open_resource(self.Adress).write('WAVeform:POINts:MODE NORMal')
+            rm.close()
+        elif (self.Brand == 'EA') and (self.Func == 'Supply'): # Driver  EA supply
+            rm.open_resource(self.Adress).write('VOLT:PROT '+str(OVP))
+            rm.open_resource(self.Adress).write('CURR:PROT '+str(OCP))
+            rm.open_resource(self.Adress).write('POW:PROT '+str(OPP))
+            rm.close()
+        elif (self.Brand == 'Sorensen') and (self.Func == 'Supply'): #Driver Sorensen supply
+              print('Not YET implemented')
+        else : 
+            print('Bad call to function or function not implemented')
+            
+    def Sup_prot_read(self, flag = 1, Channel=1):
+        if (self.Brand == 'TTi') and (self.Func == 'Supply'): # Driver TTi supply
+            pass
+        elif (self.Brand == 'EA') and (self.Func == 'Supply'): # Driver  EA supply
+            rm.open_resource(self.Adress).write('VOLT:PROT '+str(OVP))
+            rm.open_resource(self.Adress).write('CURR:PROT '+str(OCP))
+            rm.open_resource(self.Adress).write('POW:PROT '+str(OPP))
+            rm.close()
+        elif (self.Brand == 'Sorensen') and (self.Func == 'Supply'): #Driver Sorensen supply
+              print('Not YET implemented')
+        else : 
+            print('Bad call to function or function not implemented')    
+            
+    def Sup_mes(self, Channel=1):
+        if (self.Brand == 'TTi') and (self.Func == 'Supply'): # Driver TTi supply
+            rm.open_resource(self.Adress).write('WAVeform:POINts:MODE NORMal')
+            rm.close()
+        elif (self.Brand == 'EA') and (self.Func == 'Supply'): # Driver  EA supply
+            volt = rm.open_resource(self.Adress).query('MEAS:VOLT?')
+            amp  = rm.open_resource(self.Adress).query('MEAS:CURR?')
+            power= rm.open_resource(self.Adress).query('MEAS:POW?')
+            volt_prot = rm.open_resource(self.Adress).query('VOLT:PROT?')
+            amp_prot  = rm.open_resource(self.Adress).query('CURR:PROT?')
+            power_prot= rm.open_resource(self.Adress).query('POW:PROT?')
+            rm.close()
+            return volt, amp, power, volt_prot, amp_prot, power_prot
+        elif (self.Brand == 'Sorensen') and (self.Func == 'Supply'): #Driver Sorensen supply
+              print('Not YET implemented')
+             
+        else : 
+            print('Bad call to function or function not implemented')
     
 # On scan tous les instruments disponibles pour déterminer ceux qui sont connectés 
 # On les assigne en tant qu'objets instr. Chaque fonction sera ensuite définie dans la classe avec classe
