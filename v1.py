@@ -103,16 +103,16 @@ class Instruments:
         else : 
             print('Bad call to function or function not implemented')
             
-    def Acquire_data (self):
+    def Acquire_data (self, nb_point = 10000):
         if (self.Brand == 'Keysight') and (self.Func == 'Scope'): # Driver Scope Keysight
             self.rm.open_resource(self.Adress).write(':DIGitize')
-            self.rm.open_resource(self.Adress).write('WAVeform:POINts:MODE NORMal')
+            self.rm.open_resource(self.Adress).write('WAVeform:POINts:MODE MAXimum')
             self.rm.open_resource(self.Adress).write('WAVeform:FORMat ASCii')
-            self.rm.open_resource(self.Adress).write('WAVeform:POINts 1000')
+            self.rm.open_resource(self.Adress).write('WAVeform:POINts ' +str(nb_point))
             data = []
             Range = float(self.rm.open_resource(self.Adress).query('TIMebase:WINDow:RANGe?'))
             Pos = float(self.rm.open_resource(self.Adress).query('TIMebase:POSition?'))
-            data.append(np.linspace(-5*Range+Pos,5*Range+Pos,992)) #Timebase
+            data.append(np.linspace(-5*Range+Pos,5*Range+Pos,nb_point)) #Timebase
             for i in [1,2,3,4]:
                 if(int(self.rm.open_resource(self.Adress).query('CHANnel'+str(i)+':DISPlay?')[0])== 1):
                     self.rm.open_resource(self.Adress).write(':WAVeform:SOURce CHAN'+str(i))
